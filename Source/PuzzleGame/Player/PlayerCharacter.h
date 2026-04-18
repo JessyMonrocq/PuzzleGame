@@ -27,11 +27,11 @@ public:
 	
 protected:
 	
-	UPROPERTY(EditAnywhere, meta=(ClampMin="0.0", ClampMax="10.0", UIMin="0.0", UIMax="10.0"))
+	UPROPERTY(EditAnywhere, Category="Movement", meta=(ClampMin="0.0", ClampMax="10.0", UIMin="0.0", UIMax="10.0"))
 	float moveSpeed = 1.0f;
-	UPROPERTY(EditAnywhere, meta=(ClampMin="0.0", ClampMax="10.0", UIMin="0.0", UIMax="10.0"))
+	UPROPERTY(EditAnywhere, Category="Movement", meta=(ClampMin="0.0", ClampMax="10.0", UIMin="0.0", UIMax="10.0"))
 	float cameraXSensitivity = 1.0f;
-	UPROPERTY(EditAnywhere, meta=(ClampMin="0.0", ClampMax="10.0", UIMin="0.0", UIMax="10.0"))
+	UPROPERTY(EditAnywhere, Category="Movement", meta=(ClampMin="0.0", ClampMax="10.0", UIMin="0.0", UIMax="10.0"))
 	float cameraYSensitivity = 1.0f;
 	
 	void InitializePlayerInput();
@@ -48,7 +48,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> LookAction;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UCameraComponent> Camera;
-
 };
