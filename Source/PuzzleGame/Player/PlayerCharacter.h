@@ -33,8 +33,12 @@ protected:
 	float cameraXSensitivity = 1.0f;
 	UPROPERTY(EditAnywhere, Category="Movement", meta=(ClampMin="0.0", ClampMax="10.0", UIMin="0.0", UIMax="10.0"))
 	float cameraYSensitivity = 1.0f;
+	UPROPERTY(EditAnywhere, Category="Detection", meta=(ClampMin="1.0", ClampMax="1000.0", UIMin="1.0", UIMax="1000.0"))
+	float lineTraceLength = 300.0f;
 	
 	void InitializePlayerInput();
+	void InteractableDetection();
+	void PlayerInteract();
 	
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
@@ -48,6 +52,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> LookAction;
 	
+	UPROPERTY(EditAnywhere, Category="Input")
+	TObjectPtr<UInputAction> InteractAction;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UCameraComponent> Camera;
+	
+	UPROPERTY(VisibleAnywhere, Category="Interactable")
+	TObjectPtr<AActor> CurrentInteractable;
 };
