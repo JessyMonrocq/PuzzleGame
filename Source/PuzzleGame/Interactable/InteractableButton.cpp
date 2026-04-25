@@ -1,7 +1,4 @@
 #include "PuzzleGame/Interactable/InteractableButton.h"
-
-#include <string>
-
 #include "Components/StaticMeshComponent.h"
 
 AInteractableButton::AInteractableButton()
@@ -26,9 +23,14 @@ void AInteractableButton::SetButtonState(bool isActive)
 	buttonState = isActive ? State::Active : State::Disabled;
 }
 
+bool AInteractableButton::IsHoldInteraction_Implementation() const
+{
+	return false;
+}
+
 void AInteractableButton::Highlight_Implementation(bool detected)
 {
-	if (!detected)
+	if (!detected || buttonState == State::Busy)
 	{
 		ButtonFrameMesh->SetOverlayMaterial(nullptr);
 		return;
@@ -90,10 +92,6 @@ void AInteractableButton::Interact_Implementation()
 	{
 		wasInteractedWith = true;
 	}
-	else
-	{
-		buttonState = State::Active;
-	}
 }
  
 void AInteractableButton::PressButton()
@@ -104,6 +102,11 @@ void AInteractableButton::PressButton()
 		{
 			elapsedTime = 0.0f;
 			isReturningFromPress = true;
+			
+			if (IActivatable* Activatable = Cast<IActivatable>(TargetActor))
+			{
+				Activatable->Execute_SimpleActivate(TargetActor);
+			}
 		}
 		return;
 	}
@@ -114,11 +117,6 @@ void AInteractableButton::PressButton()
 		wasInteractedWith = isOneTimeInteraction;
 		buttonState = wasInteractedWith ? State::Busy : State::Active;
 		isReturningFromPress = false;
-		
-		if (IActivatable* Activatable = Cast<IActivatable>(TargetActor))
-		{
-			Activatable->Execute_SimpleActivate(TargetActor);
-		}
 	}
 }
 

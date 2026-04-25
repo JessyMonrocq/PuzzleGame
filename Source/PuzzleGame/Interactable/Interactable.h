@@ -16,8 +16,14 @@ class PUZZLEGAME_API IInteractable
 	
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	bool IsHoldInteraction() const;
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void Highlight(bool detected);
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
     void Interact();
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void HoldInteraction(bool interacting);
 };
