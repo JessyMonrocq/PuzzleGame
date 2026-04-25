@@ -68,6 +68,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	TObjectPtr<AActor> TargetActor;
 	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Interaction")
+	void OnButtonPressed(bool state);
+	
 	virtual bool IsHoldInteraction_Implementation() const override;
 	virtual void Highlight_Implementation(bool detected) override;
 	virtual void Interact_Implementation() override;

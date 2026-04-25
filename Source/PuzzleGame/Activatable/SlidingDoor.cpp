@@ -42,7 +42,7 @@ void ASlidingDoor::SimpleActivate_Implementation()
 
 void ASlidingDoor::Activate_Implementation(bool state)
 {
-	GEngine->AddOnScreenDebugMessage(-1,1.0f,FColor::Green,TEXT("Activate"));
+	
 }
 
 void ASlidingDoor::AnimateDoor()

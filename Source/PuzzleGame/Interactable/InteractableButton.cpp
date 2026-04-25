@@ -103,6 +103,7 @@ void AInteractableButton::PressButton()
 			elapsedTime = 0.0f;
 			isReturningFromPress = true;
 			
+			OnButtonPressed(true);
 			if (IActivatable* Activatable = Cast<IActivatable>(TargetActor))
 			{
 				Activatable->Execute_SimpleActivate(TargetActor);
@@ -117,6 +118,8 @@ void AInteractableButton::PressButton()
 		wasInteractedWith = isOneTimeInteraction;
 		buttonState = wasInteractedWith ? State::Busy : State::Active;
 		isReturningFromPress = false;
+		
+		OnButtonPressed(false);
 	}
 }
 
@@ -128,6 +131,8 @@ void AInteractableButton::PushButton()
 		wasInteractedWith = isOneTimeInteraction;
 		buttonState = wasInteractedWith ? State::Busy : State::Active;
 		isReturningFromPress = false;
+		
+		OnButtonPressed(isPushed);
 		
 		if (IActivatable* Activatable = Cast<IActivatable>(TargetActor))
 		{
