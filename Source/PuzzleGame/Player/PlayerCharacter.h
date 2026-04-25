@@ -38,7 +38,7 @@ protected:
 	
 	void InitializePlayerInput();
 	void InteractableDetection();
-	void PlayerInteract();
+	void PlayerInteract(bool interact);
 	
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);

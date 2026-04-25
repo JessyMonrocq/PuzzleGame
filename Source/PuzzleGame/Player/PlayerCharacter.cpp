@@ -50,7 +50,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		if (InteractAction)
 		{
-			EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &APlayerCharacter::PlayerInteract);
+			EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this,
+			                                   &APlayerCharacter::PlayerInteract, true);
+			EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this,
+			                                   &APlayerCharacter::PlayerInteract, false);
 		}
 	}
 }
@@ -121,25 +124,23 @@ void APlayerCharacter::InteractableDetection()
 
 		if (!HitActor.IsNull() && HitActor.GetClass()->ImplementsInterface(UInteractable::StaticClass()))
 		{
-			if (HitActor == CurrentInteractable)
-			{
-				return;
-			}
-			
 			IInteractable::Execute_Highlight(HitActor, true);
 			CurrentInteractable = HitActor;
 		}
 		else
 		{
-			if (!CurrentInteractable.IsNull() && CurrentInteractable.GetClass()->ImplementsInterface(UInteractable::StaticClass()))
+			if (!CurrentInteractable.IsNull() && CurrentInteractable.GetClass()->ImplementsInterface(
+				UInteractable::StaticClass()))
 			{
 				IInteractable::Execute_Highlight(CurrentInteractable, false);
 				CurrentInteractable = nullptr;
 			}
 		}
-	} else
+	}
+	else
 	{
-		if (!CurrentInteractable.IsNull() && CurrentInteractable.GetClass()->ImplementsInterface(UInteractable::StaticClass()))
+		if (!CurrentInteractable.IsNull() && CurrentInteractable.GetClass()->ImplementsInterface(
+			UInteractable::StaticClass()))
 		{
 			IInteractable::Execute_Highlight(CurrentInteractable, false);
 			CurrentInteractable = nullptr;
@@ -147,10 +148,18 @@ void APlayerCharacter::InteractableDetection()
 	}
 }
 
-void APlayerCharacter::PlayerInteract()
+void APlayerCharacter::PlayerInteract(bool interact)
 {
 	if (!CurrentInteractable.IsNull())
 	{
-		IInteractable::Execute_Interact(CurrentInteractable);
+		if (IInteractable::Execute_IsHoldInteraction(CurrentInteractable))
+		{
+			IInteractable::Execute_HoldInteraction(CurrentInteractable, interact);
+			// Block Player movement/camera if hold interaction
+		}
+		else if (interact)
+		{
+			IInteractable::Execute_Interact(CurrentInteractable);
+		}
 	}
 }

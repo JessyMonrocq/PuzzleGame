@@ -66,7 +66,6 @@ void ASlidingDoor::AnimateDoor()
 	if (elapsedTime >= doorAnimDuration)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
-		GEngine->AddOnScreenDebugMessage(-1,1.0f,FColor::Green,TEXT("Done"));
 	}
 }
 
