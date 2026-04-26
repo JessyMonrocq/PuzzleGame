@@ -39,7 +39,7 @@ protected:
 	
 	float elapsedTime = 0.0f;
 	UPROPERTY(BlueprintReadWrite)
-	float interactionDuration = 2.0f;
+	float animDuration = 2.0f;
 	float resetDuration = 0.0f;
 	UPROPERTY(BlueprintReadWrite)
 	float maxRotationAngle = 360.0f;

@@ -2,7 +2,7 @@
 
 ASlidingDoor::ASlidingDoor()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 }
 
@@ -51,7 +51,7 @@ void ASlidingDoor::AnimateDoor()
 	float end = isOpen ? doorOpeningDistance : 0.0f;
 	
 	elapsedTime += TickInterval;
-	float Alpha = FMath::Clamp(elapsedTime / doorAnimDuration, 0.0f, 1.0f);
+	float Alpha = FMath::Clamp(elapsedTime / animDuration, 0.0f, 1.0f);
 	
 	float XOffsetLeftDoor = FMath::Lerp(-start, -end, Alpha);
 	float XOffsetRightDoor = FMath::Lerp(start, end, Alpha);
@@ -63,7 +63,7 @@ void ASlidingDoor::AnimateDoor()
 	DoorRightMesh->SetRelativeLocation(locationRightDoor);
 	DoorLeftMesh->SetRelativeLocation(locationLeftDoor);
 	
-	if (elapsedTime >= doorAnimDuration)
+	if (elapsedTime >= animDuration)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 	}

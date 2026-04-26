@@ -19,8 +19,6 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	InitializePlayerInput();
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -106,7 +104,7 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	}
 
 	AddControllerYawInput(LookValue.X * cameraXSensitivity);
-	AddControllerPitchInput(-LookValue.Y * cameraXSensitivity);
+	AddControllerPitchInput(-LookValue.Y * cameraYSensitivity);
 }
 
 void APlayerCharacter::InteractableDetection()
@@ -124,11 +122,26 @@ void APlayerCharacter::InteractableDetection()
 
 		if (!HitActor.IsNull() && HitActor.GetClass()->ImplementsInterface(UInteractable::StaticClass()))
 		{
+			if (HitActor == CurrentInteractable)
+			{
+				return;
+			}
+			
+			if (!CurrentInteractable.IsNull())
+			{
+				IInteractable::Execute_Highlight(CurrentInteractable, false);
+			}
+			
 			IInteractable::Execute_Highlight(HitActor, true);
 			CurrentInteractable = HitActor;
 		}
 		else
 		{
+			if (CurrentInteractable.IsNull())
+			{
+				return;
+			}
+			
 			if (!CurrentInteractable.IsNull() && CurrentInteractable.GetClass()->ImplementsInterface(
 				UInteractable::StaticClass()))
 			{
@@ -155,7 +168,7 @@ void APlayerCharacter::PlayerInteract(bool interact)
 		if (IInteractable::Execute_IsHoldInteraction(CurrentInteractable))
 		{
 			IInteractable::Execute_HoldInteraction(CurrentInteractable, interact);
-			// Block Player movement/camera if hold interaction
+			// TODO : Block Player movement/camera if hold interaction
 		}
 		else if (interact)
 		{

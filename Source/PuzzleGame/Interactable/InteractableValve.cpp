@@ -3,7 +3,7 @@
 
 AInteractableValve::AInteractableValve()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 }
 
 void AInteractableValve::BeginPlay()
@@ -109,7 +109,7 @@ bool AInteractableValve::AnimateValve(bool rotate)
 	float end = rotate ? maxRotationAngle : 0.0f;
 	
 	elapsedTime += TickInterval;
-	float duration = rotate ? interactionDuration : resetDuration;
+	float duration = rotate ? animDuration : resetDuration;
 	float Alpha = FMath::Clamp(elapsedTime / duration, 0.0f, 1.0f);
 	
 	float XOffset = FMath::Lerp(start, end, Alpha);

@@ -3,7 +3,7 @@
 
 AInteractableButton::AInteractableButton()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 }
 
 void AInteractableButton::BeginPlay()
@@ -98,7 +98,7 @@ void AInteractableButton::PressButton()
 {
 	if (!isReturningFromPress)
 	{
-		if (AnimateButton(true, buttonAnimDuration))
+		if (AnimateButton(true, animDuration))
 		{
 			elapsedTime = 0.0f;
 			isReturningFromPress = true;
@@ -112,7 +112,7 @@ void AInteractableButton::PressButton()
 		return;
 	}
 
-	if (AnimateButton(false, buttonAnimDuration))
+	if (AnimateButton(false, animDuration))
 	{
 		GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 		wasInteractedWith = isOneTimeInteraction;
@@ -125,7 +125,7 @@ void AInteractableButton::PressButton()
 
 void AInteractableButton::PushButton()
 {
-	if (AnimateButton(isPushed, buttonAnimDuration))
+	if (AnimateButton(isPushed, animDuration))
 	{
 		GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 		wasInteractedWith = isOneTimeInteraction;
@@ -141,13 +141,13 @@ void AInteractableButton::PushButton()
 	}	
 }
 
-bool AInteractableButton::AnimateButton(bool pressed, float animDuration)
+bool AInteractableButton::AnimateButton(bool pressed, float duration)
 {
 	float start = pressed ? 0.0f : -buttonPushDistance;
 	float end = pressed ? -buttonPushDistance : 0.0f;
 	
 	elapsedTime += TickInterval;
-	float Alpha = FMath::Clamp(elapsedTime / animDuration, 0.0f, 1.0f);
+	float Alpha = FMath::Clamp(elapsedTime / duration, 0.0f, 1.0f);
 	
 	float ZOffset = FMath::Lerp(start, end, Alpha);
 	FVector location = ButtonPlateMesh->GetRelativeLocation();
@@ -155,5 +155,5 @@ bool AInteractableButton::AnimateButton(bool pressed, float animDuration)
 	
 	ButtonPlateMesh->SetRelativeLocation(location);
 	
-	return elapsedTime >= animDuration;
+	return elapsedTime >= duration;
 }

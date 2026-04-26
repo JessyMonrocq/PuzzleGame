@@ -50,7 +50,7 @@ protected:
 	
 	float elapsedTime = 0.0f;
 	UPROPERTY(BlueprintReadWrite)
-	float buttonAnimDuration = 0.12f;
+	float animDuration = 0.12f;
 	UPROPERTY(BlueprintReadWrite)
 	float buttonPushDistance = 12.0f;
 	bool isReturningFromPress = false;
@@ -77,5 +77,5 @@ protected:
 	
 	void PressButton();
 	void PushButton();
-	bool AnimateButton(bool pressed, float animDuration);
+	bool AnimateButton(bool pressed, float duration);
 };

@@ -27,7 +27,7 @@ protected:
 	
 	float elapsedTime = 0.0f;
 	UPROPERTY(BlueprintReadWrite)
-	float doorAnimDuration = 0.2f;
+	float animDuration = 0.2f;
 	UPROPERTY(BlueprintReadWrite)
 	float doorOpeningDistance = 25.0f;
 	
