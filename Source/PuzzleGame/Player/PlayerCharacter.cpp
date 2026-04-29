@@ -1,10 +1,14 @@
 #include "PuzzleGame/Player/PlayerCharacter.h"
 #include "Camera/CameraComponent.h"
+#include "Components/PrimitiveComponent.h"
+#include "Components/SceneComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/PlayerController.h"
+#include "Kismet/GameplayStatics.h"
 #include "PuzzleGame/Interactable/Interactable.h"
 
+#pragma region Base
 APlayerCharacter::APlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -19,6 +23,19 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Setup Holding Point (cuz apparently it doesn't work like camera...)
+	if (!HoldingPoint)
+	{
+		HoldingPoint = NewObject<USceneComponent>(this, TEXT("Runtime Item Holding Point"));
+		HoldingPoint->RegisterComponent();
+		HoldingPoint->AttachToComponent(Camera ? Camera : GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		HoldingPoint->SetRelativeLocation(FVector(100.0f, 50.0f, -50.0f));
+		UE_LOG(LogTemp, Warning, TEXT("HoldingPoint was null on %s, created a runtime fallback."), *GetName());
+	}
+	
+	CurrentHeldItem = nullptr;
+	CurrentInteractable = nullptr;
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -27,7 +44,81 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	InteractableDetection();
 }
+#pragma endregion
 
+#pragma region PublicMethods
+TObjectPtr<APlayerCharacter> APlayerCharacter::Get(const TObjectPtr<UObject> WorldContextObject)
+{
+	if (!WorldContextObject)
+	{
+		return nullptr;
+	}
+	
+	return Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(WorldContextObject, 0));
+}
+
+#pragma region ItemInteraction
+bool APlayerCharacter::CanPickupItem() const
+{
+	return !CurrentHeldItem;
+}
+
+void APlayerCharacter::PickupItem(TObjectPtr<APickupItem> Item)
+{
+	if (!Item || !HoldingPoint)
+	{
+		return;
+	}
+	
+	Item->SetItemPhysics(false);
+	Item->AttachToComponent(HoldingPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	
+	CurrentHeldItem = Item;
+}
+
+void APlayerCharacter::DropItem()
+{
+	if (!CurrentHeldItem)
+	{
+		return;
+	}
+
+	// -- Method to prevent dropping item inside object
+	UPrimitiveComponent* HeldItemCollision = Cast<UPrimitiveComponent>(CurrentHeldItem->GetRootComponent());
+	if (!HeldItemCollision)
+	{
+		return;
+	}
+
+	const FBoxSphereBounds HeldItemBounds = HeldItemCollision->Bounds;
+	const FCollisionShape DropCollisionShape = FCollisionShape::MakeBox(HeldItemBounds.BoxExtent * 0.95f);
+
+	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(DropItem), false);
+	QueryParams.AddIgnoredActor(this);
+	QueryParams.AddIgnoredActor(CurrentHeldItem);
+
+	const bool bDropBlocked = GetWorld()->OverlapBlockingTestByChannel(
+		HeldItemBounds.Origin,
+		CurrentHeldItem->GetActorQuat(),
+		HeldItemCollision->GetCollisionObjectType(),
+		DropCollisionShape,
+		QueryParams);
+
+	if (bDropBlocked)
+	{
+		return;
+	}
+	// -- Method to prevent dropping item inside object
+	
+	CurrentHeldItem->SetItemPhysics(true);
+	CurrentHeldItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	CurrentHeldItem = nullptr;
+}
+#pragma endregion
+#pragma endregion
+
+#pragma region ProtectedMethods
+#pragma region PlayerInput
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -52,6 +143,11 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 			                                   &APlayerCharacter::PlayerInteract, true);
 			EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this,
 			                                   &APlayerCharacter::PlayerInteract, false);
+		}
+		
+		if (DropAction)
+		{
+			EnhancedInputComponent->BindAction(DropAction, ETriggerEvent::Started, this, &APlayerCharacter::DropItem);
 		}
 	}
 }
@@ -106,7 +202,8 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	AddControllerYawInput(LookValue.X * cameraXSensitivity);
 	AddControllerPitchInput(-LookValue.Y * cameraYSensitivity);
 }
-
+#pragma endregion
+#pragma region Interaction
 void APlayerCharacter::InteractableDetection()
 {
 	FVector Start = Camera->GetComponentLocation();
@@ -126,12 +223,12 @@ void APlayerCharacter::InteractableDetection()
 			{
 				return;
 			}
-			
+
 			if (!CurrentInteractable.IsNull())
 			{
 				IInteractable::Execute_Highlight(CurrentInteractable, false);
 			}
-			
+
 			IInteractable::Execute_Highlight(HitActor, true);
 			CurrentInteractable = HitActor;
 		}
@@ -141,7 +238,7 @@ void APlayerCharacter::InteractableDetection()
 			{
 				return;
 			}
-			
+
 			if (!CurrentInteractable.IsNull() && CurrentInteractable.GetClass()->ImplementsInterface(
 				UInteractable::StaticClass()))
 			{
@@ -176,3 +273,5 @@ void APlayerCharacter::PlayerInteract(bool interact)
 		}
 	}
 }
+#pragma endregion
+#pragma endregion

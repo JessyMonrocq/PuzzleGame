@@ -3,9 +3,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "PuzzleGame/Interactable/PickupItem.h"
 #include "PlayerCharacter.generated.h"
 
 class UCameraComponent;
+class USceneComponent;
 class UInputAction;
 class UInputMappingContext;
 
@@ -16,6 +18,8 @@ class PUZZLEGAME_API APlayerCharacter : public ACharacter
 
 public:
 	APlayerCharacter();
+	
+	static TObjectPtr<APlayerCharacter> Get(const TObjectPtr<UObject> WorldContextObject);
 
 protected:
 	virtual void BeginPlay() override;
@@ -24,6 +28,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	bool CanPickupItem() const;
+	void PickupItem(TObjectPtr<APickupItem> Item);
+	void DropItem();
 	
 protected:
 	
@@ -55,9 +63,18 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> InteractAction;
 	
+	UPROPERTY(EditAnywhere, Category="Input")
+	TObjectPtr<UInputAction> DropAction;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UCameraComponent> Camera;
 	
 	UPROPERTY(VisibleAnywhere, Category="Interactable")
 	TObjectPtr<AActor> CurrentInteractable;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Item", meta=(AllowPrivateAccess="true"))
+	TObjectPtr<USceneComponent> HoldingPoint;
+	
+	UPROPERTY(VisibleAnywhere, Category="Item")
+	TObjectPtr<APickupItem> CurrentHeldItem;
 };
