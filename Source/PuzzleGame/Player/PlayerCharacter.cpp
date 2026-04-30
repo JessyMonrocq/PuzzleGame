@@ -29,11 +29,12 @@ void APlayerCharacter::BeginPlay()
 	{
 		HoldingPoint = NewObject<USceneComponent>(this, TEXT("Runtime Item Holding Point"));
 		HoldingPoint->RegisterComponent();
-		HoldingPoint->AttachToComponent(Camera ? Camera : GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-		HoldingPoint->SetRelativeLocation(FVector(100.0f, 50.0f, -50.0f));
+		HoldingPoint->AttachToComponent(Camera ? Camera : GetRootComponent(),
+		                                FAttachmentTransformRules::KeepRelativeTransform);
+		HoldingPoint->SetRelativeLocation(FVector(75.0f, 33.0f, -33.0f));
 		UE_LOG(LogTemp, Warning, TEXT("HoldingPoint was null on %s, created a runtime fallback."), *GetName());
 	}
-	
+
 	CurrentHeldItem = nullptr;
 	CurrentInteractable = nullptr;
 }
@@ -53,7 +54,7 @@ TObjectPtr<APlayerCharacter> APlayerCharacter::Get(const TObjectPtr<UObject> Wor
 	{
 		return nullptr;
 	}
-	
+
 	return Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(WorldContextObject, 0));
 }
 
@@ -69,11 +70,28 @@ void APlayerCharacter::PickupItem(TObjectPtr<APickupItem> Item)
 	{
 		return;
 	}
-	
+
+	Item->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	Item->SetItemPhysics(false);
 	Item->AttachToComponent(HoldingPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	
+
 	CurrentHeldItem = Item;
+}
+
+TObjectPtr<APickupItem> APlayerCharacter::GetPickupItem() const
+{
+	if (CurrentHeldItem != nullptr)
+	{
+		return CurrentHeldItem;
+	}
+	return nullptr;
+}
+
+void APlayerCharacter::SocketItem(TObjectPtr<USceneComponent> SceneComponent)
+{
+	CurrentHeldItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	CurrentHeldItem->AttachToComponent(SceneComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	CurrentHeldItem = nullptr;
 }
 
 void APlayerCharacter::DropItem()
@@ -109,7 +127,7 @@ void APlayerCharacter::DropItem()
 		return;
 	}
 	// -- Method to prevent dropping item inside object
-	
+
 	CurrentHeldItem->SetItemPhysics(true);
 	CurrentHeldItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	CurrentHeldItem = nullptr;
@@ -144,7 +162,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 			EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this,
 			                                   &APlayerCharacter::PlayerInteract, false);
 		}
-		
+
 		if (DropAction)
 		{
 			EnhancedInputComponent->BindAction(DropAction, ETriggerEvent::Started, this, &APlayerCharacter::DropItem);

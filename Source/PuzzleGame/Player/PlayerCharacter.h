@@ -31,6 +31,8 @@ public:
 	
 	bool CanPickupItem() const;
 	void PickupItem(TObjectPtr<APickupItem> Item);
+	TObjectPtr<APickupItem> GetPickupItem() const;
+	void SocketItem(TObjectPtr<USceneComponent> SceneComponent);
 	void DropItem();
 	
 protected:

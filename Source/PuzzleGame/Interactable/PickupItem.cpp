@@ -34,8 +34,28 @@ void APickupItem::SetItemPhysics(bool state)
 	ItemMesh->SetCollisionEnabled(state ? ECollisionEnabled::QueryAndPhysics : ECollisionEnabled::NoCollision);
 }
 
+void APickupItem::SetItemPickupState(bool state)
+{
+	canPickup = state;
+}
+
+TObjectPtr<UItemKey> APickupItem::GetItemKey() const
+{
+	if (ItemKey != nullptr)
+	{
+		return ItemKey;
+	}
+	return nullptr;
+}
+
 void APickupItem::Highlight_Implementation(bool detected)
 {
+	TObjectPtr<APlayerCharacter> PlayerCharacter = APlayerCharacter::Get(this);
+	if ((!PlayerCharacter.IsNull() && !PlayerCharacter->CanPickupItem()) || !canPickup)
+	{
+		return;
+	}
+	
 	if (!detected)
 	{
 		ItemMesh->SetOverlayMaterial(nullptr);
@@ -52,6 +72,7 @@ void APickupItem::Interact_Implementation()
 	if (!PlayerCharacter.IsNull() && PlayerCharacter->CanPickupItem())
 	{
 		PlayerCharacter->PickupItem(this);
+		ItemMesh->SetOverlayMaterial(nullptr);
 	}
 }
 
