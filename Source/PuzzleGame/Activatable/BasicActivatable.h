@@ -20,6 +20,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
-	virtual void SimpleActivate_Implementation() override;
-	virtual void Activate_Implementation(bool state) override;
+	virtual void SetPower_Implementation(bool powerUp) override;
+	virtual void SimpleInteract_Implementation() override;
 };

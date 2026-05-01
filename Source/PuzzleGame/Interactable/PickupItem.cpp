@@ -8,7 +8,7 @@ APickupItem::APickupItem()
 	PrimaryActorTick.bCanEverTick = false;
 	
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>("Item Mesh");
-	SetRootComponent(ItemMesh);
+	ItemMesh->SetupAttachment(RootComponent);
 	ItemMesh->SetMobility(EComponentMobility::Movable);
 	ItemMesh->SetSimulatePhysics(true);
 }
@@ -16,7 +16,6 @@ APickupItem::APickupItem()
 void APickupItem::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void APickupItem::Tick(float DeltaTime)

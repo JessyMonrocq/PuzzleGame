@@ -106,7 +106,7 @@ void AInteractableButton::PressButton()
 			OnButtonPressed(true);
 			if (IActivatable* Activatable = Cast<IActivatable>(TargetActor))
 			{
-				Activatable->Execute_SimpleActivate(TargetActor);
+				Activatable->Execute_SimpleInteract(TargetActor);
 			}
 		}
 		return;
@@ -136,7 +136,7 @@ void AInteractableButton::PushButton()
 		
 		if (IActivatable* Activatable = Cast<IActivatable>(TargetActor))
 		{
-			Activatable->Execute_Activate(TargetActor, isPushed);
+			Activatable->Execute_Interact(TargetActor, isPushed);
 		}
 	}	
 }

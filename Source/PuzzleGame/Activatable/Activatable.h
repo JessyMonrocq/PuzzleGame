@@ -16,8 +16,11 @@ class PUZZLEGAME_API IActivatable
 
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void SimpleActivate();
+	void SetPower(bool powerUp);
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void Activate(bool state);
+	void SimpleInteract();
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void Interact(bool state);
 };

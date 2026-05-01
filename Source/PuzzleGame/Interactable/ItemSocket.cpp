@@ -1,5 +1,6 @@
 #include "PuzzleGame/Interactable/ItemSocket.h"
 
+#include "PuzzleGame/Activatable/Activatable.h"
 #include "PuzzleGame/Player/PlayerCharacter.h"
 
 AItemSocket::AItemSocket()
@@ -10,7 +11,7 @@ AItemSocket::AItemSocket()
 void AItemSocket::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	isSocketed = false;
 	SocketedItem = nullptr;
 }
@@ -29,13 +30,13 @@ void AItemSocket::Highlight_Implementation(bool detected)
 			SocketMesh->SetOverlayMaterial(HighlightMaterialInstance);
 			return;
 		}
-		
+
 		TObjectPtr<APlayerCharacter> PlayerCharacter = APlayerCharacter::Get(this);
 		if (PlayerCharacter.IsNull() || PlayerCharacter->GetPickupItem() == nullptr)
 		{
 			return;
 		}
-		
+
 		if (PlayerCharacter->GetPickupItem()->GetItemKey() == ItemKey)
 		{
 			SocketMesh->SetOverlayMaterial(HighlightMaterialInstance);
@@ -57,14 +58,23 @@ void AItemSocket::Interact_Implementation()
 		SocketedItem = PlayerCharacter->GetPickupItem();
 		SocketedItem->SetItemPickupState(false);
 		PlayerCharacter->SocketItem(SocketPoint);
-		
 		isSocketed = true;
-	} else if (isSocketed && !PlayerCharacter.IsNull() && PlayerCharacter->GetPickupItem() == nullptr)
+		
+		if (IActivatable* Activatable = Cast<IActivatable>(TargetActor))
+		{
+			Activatable->Execute_SetPower(TargetActor, true);
+		}
+	}
+	else if (isSocketed && !PlayerCharacter.IsNull() && PlayerCharacter->GetPickupItem() == nullptr)
 	{
 		SocketedItem->SetItemPickupState(true);
 		PlayerCharacter->PickupItem(SocketedItem);
 		SocketedItem = nullptr;
-		
 		isSocketed = false;
+		
+		if (IActivatable* Activatable = Cast<IActivatable>(TargetActor))
+		{
+			Activatable->Execute_SetPower(TargetActor, false);
+		}
 	}
 }

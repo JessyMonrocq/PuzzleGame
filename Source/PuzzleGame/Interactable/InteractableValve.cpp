@@ -89,7 +89,7 @@ void AInteractableValve::RotateValve()
 		
 		if (IActivatable* Activatable = Cast<IActivatable>(TargetActor))
 		{
-			Activatable->Execute_SimpleActivate(TargetActor);
+			Activatable->Execute_SimpleInteract(TargetActor);
 		}
 	}
 }

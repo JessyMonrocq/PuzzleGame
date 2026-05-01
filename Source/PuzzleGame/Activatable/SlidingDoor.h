@@ -20,7 +20,17 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
-	bool isOpen = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Activatable")
+	bool IsPoweredOnStart = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Activatable")
+	bool InteractOnPowered = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Activatable")
+	int requiredPower;
+	
+	bool isPowered;
+	int currentPower;
+	
+	bool isOpen;
 	
 	FTimerHandle TimerHandle;
 	float TickInterval = 0.016f;
@@ -36,8 +46,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Door References", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UStaticMeshComponent> DoorRightMesh;
 	
-	virtual void SimpleActivate_Implementation() override;
-	virtual void Activate_Implementation(bool state) override;
+	virtual void SetPower_Implementation(bool powerUp) override;
+	virtual void SimpleInteract_Implementation() override;
 	
 	void AnimateDoor();
 };

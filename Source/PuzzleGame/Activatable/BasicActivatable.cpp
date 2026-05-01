@@ -18,12 +18,12 @@ void ABasicActivatable::Tick(float DeltaTime)
 
 }
 
-void ABasicActivatable::SimpleActivate_Implementation()
+void ABasicActivatable::SetPower_Implementation(bool powerUp)
 {
 	
 }
 
-void ABasicActivatable::Activate_Implementation(bool state)
+void ABasicActivatable::SimpleInteract_Implementation()
 {
 	
 }

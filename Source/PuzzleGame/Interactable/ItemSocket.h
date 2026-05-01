@@ -42,6 +42,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Socket References", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UItemKey> ItemKey;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Activatable")
+	TObjectPtr<AActor> TargetActor;
+	
 	virtual void Highlight_Implementation(bool detected) override;
 	virtual void Interact_Implementation() override;
 };
