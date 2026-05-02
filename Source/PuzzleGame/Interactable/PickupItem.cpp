@@ -50,6 +50,9 @@ TObjectPtr<UItemKey> APickupItem::GetItemKey() const
 void APickupItem::Highlight_Implementation(bool detected)
 {
 	TObjectPtr<APlayerCharacter> PlayerCharacter = APlayerCharacter::Get(this);
+	FText displayText = FText::FromString("Grab 'E'");
+	PlayerCharacter->SetInteractWidgetText(displayText);
+	
 	if ((!PlayerCharacter.IsNull() && !PlayerCharacter->CanPickupItem()) || !canPickup)
 	{
 		return;
@@ -58,10 +61,12 @@ void APickupItem::Highlight_Implementation(bool detected)
 	if (!detected)
 	{
 		ItemMesh->SetOverlayMaterial(nullptr);
+		PlayerCharacter->DisplayInteractWidget(false);
 	}
 	else
 	{
 		ItemMesh->SetOverlayMaterial(HighlightMaterialInstance);
+		PlayerCharacter->DisplayInteractWidget(true);
 	}
 }
 
@@ -72,6 +77,7 @@ void APickupItem::Interact_Implementation()
 	{
 		PlayerCharacter->PickupItem(this);
 		ItemMesh->SetOverlayMaterial(nullptr);
+		PlayerCharacter->DisplayInteractWidget(false);
 	}
 }
 

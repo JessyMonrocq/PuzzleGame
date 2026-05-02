@@ -23,15 +23,19 @@ void AItemSocket::Tick(float DeltaTime)
 
 void AItemSocket::Highlight_Implementation(bool detected)
 {
+	TObjectPtr<APlayerCharacter> PlayerCharacter = APlayerCharacter::Get(this);
+	
 	if (detected)
 	{
 		if (isSocketed)
 		{
 			SocketMesh->SetOverlayMaterial(HighlightMaterialInstance);
+			FText displayText = FText::FromString("Retrieve 'E'");
+			PlayerCharacter->SetInteractWidgetText(displayText);
+			PlayerCharacter->DisplayInteractWidget(true);
 			return;
 		}
 
-		TObjectPtr<APlayerCharacter> PlayerCharacter = APlayerCharacter::Get(this);
 		if (PlayerCharacter.IsNull() || PlayerCharacter->GetPickupItem() == nullptr)
 		{
 			return;
@@ -40,12 +44,16 @@ void AItemSocket::Highlight_Implementation(bool detected)
 		if (PlayerCharacter->GetPickupItem()->GetItemKey() == ItemKey)
 		{
 			SocketMesh->SetOverlayMaterial(HighlightMaterialInstance);
+			FText displayText = FText::FromString("Insert 'E'");
+			PlayerCharacter->SetInteractWidgetText(displayText);
+			PlayerCharacter->DisplayInteractWidget(true);
 			correctKeyDetected = true;
 		}
 	}
 	else
 	{
 		SocketMesh->SetOverlayMaterial(nullptr);
+		PlayerCharacter->DisplayInteractWidget(false);
 		correctKeyDetected = false;
 	}
 }
@@ -53,12 +61,14 @@ void AItemSocket::Highlight_Implementation(bool detected)
 void AItemSocket::Interact_Implementation()
 {
 	TObjectPtr<APlayerCharacter> PlayerCharacter = APlayerCharacter::Get(this);
+	
 	if (!isSocketed && !PlayerCharacter.IsNull() && correctKeyDetected)
 	{
 		SocketedItem = PlayerCharacter->GetPickupItem();
 		SocketedItem->SetItemPickupState(false);
 		PlayerCharacter->SocketItem(SocketPoint);
 		isSocketed = true;
+		Highlight_Implementation(true);
 		
 		if (IActivatable* Activatable = Cast<IActivatable>(TargetActor))
 		{
@@ -71,6 +81,7 @@ void AItemSocket::Interact_Implementation()
 		PlayerCharacter->PickupItem(SocketedItem);
 		SocketedItem = nullptr;
 		isSocketed = false;
+		Highlight_Implementation(true);
 		
 		if (IActivatable* Activatable = Cast<IActivatable>(TargetActor))
 		{

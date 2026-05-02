@@ -1,5 +1,6 @@
 #include "PuzzleGame/Interactable/InteractableValve.h"
 #include "Components/StaticMeshComponent.h"
+#include "PuzzleGame/Player/PlayerCharacter.h"
 
 AInteractableValve::AInteractableValve()
 {
@@ -23,9 +24,14 @@ bool AInteractableValve::IsHoldInteraction_Implementation() const
 
 void AInteractableValve::Highlight_Implementation(bool detected)
 {
+	TObjectPtr<APlayerCharacter> PlayerCharacter = APlayerCharacter::Get(this);
+	FText displayText = FText::FromString("Hold 'E'");
+	PlayerCharacter->SetInteractWidgetText(displayText);
+	
 	if (!detected || valveState == State::Busy)
 	{
 		ValveWheelMesh->SetOverlayMaterial(nullptr);
+		PlayerCharacter->DisplayInteractWidget(false);
 		return;
 	}
 
@@ -38,6 +44,7 @@ void AInteractableValve::Highlight_Implementation(bool detected)
 		if (valveState == State::Active)
 		{
 			ValveWheelMesh->SetOverlayMaterial(HighlightMaterialInstance);
+			PlayerCharacter->DisplayInteractWidget(true);
 		}
 	}
 }

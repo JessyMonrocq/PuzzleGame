@@ -1,5 +1,6 @@
 #include "PuzzleGame/Interactable/InteractableButton.h"
 #include "Components/StaticMeshComponent.h"
+#include "PuzzleGame/Player/PlayerCharacter.h"
 
 AInteractableButton::AInteractableButton()
 {
@@ -9,7 +10,7 @@ AInteractableButton::AInteractableButton()
 void AInteractableButton::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	SetButtonState(!isDisabled);
 }
 
@@ -30,9 +31,14 @@ bool AInteractableButton::IsHoldInteraction_Implementation() const
 
 void AInteractableButton::Highlight_Implementation(bool detected)
 {
+	TObjectPtr<APlayerCharacter> PlayerCharacter = APlayerCharacter::Get(this);
+	FText displayText = FText::FromString("Press 'E'");
+	PlayerCharacter->SetInteractWidgetText(displayText);
+	
 	if (!detected || buttonState == State::Busy)
 	{
 		ButtonFrameMesh->SetOverlayMaterial(nullptr);
+		PlayerCharacter->DisplayInteractWidget(false);
 		return;
 	}
 
@@ -45,10 +51,12 @@ void AInteractableButton::Highlight_Implementation(bool detected)
 		if (buttonState == State::Active)
 		{
 			ButtonFrameMesh->SetOverlayMaterial(HighlightMaterialInstance);
+			PlayerCharacter->DisplayInteractWidget(true);
 		}
 		else if (buttonState == State::Disabled)
 		{
 			ButtonFrameMesh->SetOverlayMaterial(DisabledMaterialInstance);
+			PlayerCharacter->DisplayInteractWidget(false);
 		}
 	}
 }
@@ -59,7 +67,7 @@ void AInteractableButton::Interact_Implementation()
 	{
 		return;
 	}
-	
+
 	ButtonFrameMesh->SetOverlayMaterial(nullptr);
 
 	buttonState = State::Busy;
@@ -87,13 +95,13 @@ void AInteractableButton::Interact_Implementation()
 			true
 		);
 	}
-	
+
 	if (isOneTimeInteraction)
 	{
 		wasInteractedWith = true;
 	}
 }
- 
+
 void AInteractableButton::PressButton()
 {
 	if (!isReturningFromPress)
@@ -102,7 +110,7 @@ void AInteractableButton::PressButton()
 		{
 			elapsedTime = 0.0f;
 			isReturningFromPress = true;
-			
+
 			OnButtonPressed(true);
 			if (IActivatable* Activatable = Cast<IActivatable>(TargetActor))
 			{
@@ -118,7 +126,7 @@ void AInteractableButton::PressButton()
 		wasInteractedWith = isOneTimeInteraction;
 		buttonState = wasInteractedWith ? State::Busy : State::Active;
 		isReturningFromPress = false;
-		
+
 		OnButtonPressed(false);
 	}
 }
@@ -131,29 +139,29 @@ void AInteractableButton::PushButton()
 		wasInteractedWith = isOneTimeInteraction;
 		buttonState = wasInteractedWith ? State::Busy : State::Active;
 		isReturningFromPress = false;
-		
+
 		OnButtonPressed(isPushed);
-		
+
 		if (IActivatable* Activatable = Cast<IActivatable>(TargetActor))
 		{
 			Activatable->Execute_Interact(TargetActor, isPushed);
 		}
-	}	
+	}
 }
 
 bool AInteractableButton::AnimateButton(bool pressed, float duration)
 {
 	float start = pressed ? 0.0f : -buttonPushDistance;
 	float end = pressed ? -buttonPushDistance : 0.0f;
-	
+
 	elapsedTime += TickInterval;
 	float Alpha = FMath::Clamp(elapsedTime / duration, 0.0f, 1.0f);
-	
+
 	float ZOffset = FMath::Lerp(start, end, Alpha);
 	FVector location = ButtonPlateMesh->GetRelativeLocation();
 	location.Z = ZOffset;
-	
+
 	ButtonPlateMesh->SetRelativeLocation(location);
-	
+
 	return elapsedTime >= duration;
 }

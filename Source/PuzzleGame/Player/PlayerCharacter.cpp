@@ -6,6 +6,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/UserWidget.h"
 #include "PuzzleGame/Interactable/Interactable.h"
 
 #pragma region Base
@@ -37,6 +38,14 @@ void APlayerCharacter::BeginPlay()
 
 	CurrentHeldItem = nullptr;
 	CurrentInteractable = nullptr;
+
+	// Setup for widget blueprint
+	if (WidgetClass)
+	{
+		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+
+		WidgetInstance = CreateWidget<UCustomUserWidget>(PlayerController, WidgetClass);
+	}
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -133,6 +142,22 @@ void APlayerCharacter::DropItem()
 	CurrentHeldItem = nullptr;
 }
 #pragma endregion
+void APlayerCharacter::DisplayInteractWidget(bool display) const
+{
+	if (display)
+	{
+		WidgetInstance->AddToViewport();
+	}
+	else
+	{
+		WidgetInstance->RemoveFromViewport();
+	}
+}
+
+void APlayerCharacter::SetInteractWidgetText(const FText& Text) const
+{
+	WidgetInstance->SetText(Text);
+}
 #pragma endregion
 
 #pragma region ProtectedMethods

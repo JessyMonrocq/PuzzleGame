@@ -4,12 +4,14 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "PuzzleGame/Interactable/PickupItem.h"
+#include "PuzzleGame/UI/CustomUserWidget.h"
 #include "PlayerCharacter.generated.h"
 
 class UCameraComponent;
 class USceneComponent;
 class UInputAction;
 class UInputMappingContext;
+class UUserWidget;
 
 UCLASS()
 class PUZZLEGAME_API APlayerCharacter : public ACharacter
@@ -34,6 +36,9 @@ public:
 	TObjectPtr<APickupItem> GetPickupItem() const;
 	void SocketItem(TObjectPtr<USceneComponent> SceneComponent);
 	void DropItem();
+	
+	void DisplayInteractWidget(bool display) const;
+	void SetInteractWidgetText(const FText& Text) const;
 	
 protected:
 	
@@ -67,6 +72,12 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> DropAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category="UI")
+	TSubclassOf<UCustomUserWidget> WidgetClass;
+	
+	UPROPERTY()
+	TObjectPtr<UCustomUserWidget> WidgetInstance;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UCameraComponent> Camera;
